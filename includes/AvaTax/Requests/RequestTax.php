@@ -54,7 +54,7 @@ class RequestTax extends Request {
 				'SingleLocation' => $this->prepare_address( $post_data ),
 			);
 
-			$args['lines'] = array( $this->prepare_line() );
+			$args['lines'] = $this->prepare_lines();
 
 			// Set the VAT if it exists
 			if ( $vat = Helpers::get_param( $post_data, 'rcp_vat_id' ) ) {
@@ -123,7 +123,7 @@ class RequestTax extends Request {
 	 * @return array $line The formatted line.
 	 * @throws Exception
 	 */
-	protected function prepare_line( $subscription_id = null ) {
+	protected function prepare_lines( $subscription_id = null ) {
 
 		if ( ! $subscription_id ) {
 			$subscription_id = rcp_get_registration()->get_subscription();
@@ -133,13 +133,24 @@ class RequestTax extends Request {
 			throw new Exception( 'This subscription level does not have a related AvaTax item.' );
 		}
 
-		$line = array(
+		$total           = rcp_get_registration_total();
+		$total_recurring = rcp_get_registration_recurring_total();
+
+		$lines = array();
+
+		$lines[] = array(
 			'quantity' => 1,
-			'amount'   => rcp_get_registration_total(),
+			'amount'   => $total,
 			'itemCode' => $item,
 		);
 
-		return apply_filters( 'rcp_avatax_prepare_line', $line, $subscription_id );
+		$lines[] = array(
+			'quantity' => 1,
+			'amount'   => $total_recurring,
+			'itemCode' => $item,
+		);
+
+		return apply_filters( 'rcp_avatax_prepare_line', $lines, $subscription_id );
 	}
 
 	/**

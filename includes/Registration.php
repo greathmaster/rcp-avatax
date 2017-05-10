@@ -2,14 +2,32 @@
 
 namespace RCP_Avatax;
 
-use RCP_Avatax\AvaTax\API;
-
 class Registration {
 
 	/**
 	 * @var
 	 */
 	protected static $_instance;
+
+	/**
+	 * @var null
+	 */
+	public $total = null;
+
+	/**
+	 * @var null
+	 */
+	public $total_recurring = null;
+
+	/**
+	 * @var null
+	 */
+	public $total_tax = null;
+
+	/**
+	 * @var null
+	 */
+	public $total_recurring_tax = null;
 
 	/**
 	 * Only make one instance of \RCP_Avatax\Registration
@@ -26,9 +44,15 @@ class Registration {
 
 	protected function __construct() {
 		add_action( 'rcp_setup_registration', array( $this, 'calculate_tax' ), 500 );
+//		add_action( 'rcp_setup_registration', array( $this, 'gateway_include' ) );
 	}
 
+	/**
+	 * Calculate tax for this registration
+	 */
 	public function calculate_tax() {
+
+		$this->reset_vars();
 
 		if ( empty( $_POST['rcp_card_address'] ) ) {
 			return;
@@ -40,59 +64,54 @@ class Registration {
 			return;
 		}
 
-		if ( empty( $request->response_data->totalTaxCalculated ) ) {
+		if ( ! isset( $request->response_data->lines[0]->tax, $request->response_data->lines[1]->tax ) ) {
 			return;
 		}
 
-		rcp_get_registration()->add_fee( $request->response_data->totalTaxCalculated, __( 'Tax', 'rcp-avatax' ), true, false );
-		rcp_get_registration()->add_fee( $request->response_data->totalTaxCalculated, __( 'Tax Recurring', 'rcp-avatax' ), false, false );
+		$this->total               = rcp_get_registration_total();
+		$this->total_recurring     = rcp_get_registration_recurring_total();
+		$this->total_tax           = $request->response_data->lines[0]->tax;
+		$this->total_recurring_tax = $request->response_data->lines[1]->tax;
 
-		return;
+		if ( 0 < $this->total_tax ) {
+			rcp_get_registration()->add_fee( $this->total_tax, __( 'Tax Today', 'rcp-avatax' ), false );
+		}
 
-		$address = array(
-			'type'    => 'SalesOrder',
-			'companyCode' => 'DEFAULT',
-			'date'        => date( 'r', time() ),
-			'customerCode' => 99,
-			'addresses' => array(
-				'SingleLocation' => array(
-					'line1'   => '102 S Bogart Ave',
-					'city'    => 'Granite Falls',
-					'region'  => 'WA',
-					'country' => 'US',
-				),
-			),
-			'lines' => array(
-				array(
-					'number'   => '1',
-					'quantity' => 1,
-					'amount'  => 35,
-					'itemCode' => '10 Dollar',
-				),
-			),
-		);
+		if ( 0 < $this->total_recurring_tax ) {
+			rcp_get_registration()->add_fee( $this->total_recurring_tax, __( 'Tax Recurring', 'rcp-avatax' ), true );
+		}
 
-		$args = array(
-			'body' => json_encode( $address ),
-			'headers' => array(
-				'Authorization' => 'Basic ' . base64_encode( rcp_avatax()::get_settings( 'avatax_account_number' ) . ':' . rcp_avatax()::get_settings( 'avatax_license_key' ) ),
-				'Content-Type' => 'application/json; charset=utf-8',
-			),
-		);
+	}
 
-		$response = wp_safe_remote_post( 'https://sandbox-rest.avatax.com/api/v2/transactions/create/', $args );
-//		$response = wp_safe_remote_post( 'https://sandbox-rest.avatax.com/api/v2/addresses/resolve', $args );
-//		$response = wp_safe_remote_get( add_query_arg( $address, 'https://sandbox-rest.avatax.com/api/v2/taxrates/byaddress' ), $args );
+	/**
+	 * Reset class vars
+	 */
+	public function reset_vars() {
+		$this->total = $this->total_recurring = $this->total_tax = $this->total_recurring_tax = null;
+	}
 
-		$response = wp_remote_retrieve_body( $response );
+	/**
+	 * Include gateway to handle custom processing
+	 */
+	public function gateway_include() {
 
-		$response = json_decode( $response );
+		// get the selected payment method/gateway
+		if ( ! isset( $_POST['rcp_gateway'] ) ) {
+			$gateway = 'paypal';
+		} else {
+			$gateway = sanitize_text_field( $_POST['rcp_gateway'] );
+		}
 
-		$service_url    = rcp_avatax()::get_service_url();
-		$account_number = rcp_avatax()::get_settings( 'avatax_account_number' );
-		$license_key    = rcp_avatax()::get_settings( 'avatax_license_key' );
+		if ( apply_filters( 'rcp_avatax_gateway_included', false, $gateway ) ) {
+			return;
+		}
 
-		return;
+		switch( $gateway ) {
+			case 'stripe' :
+				Gateways\Stripe::get_instance();
+				return;
+		}
+
 	}
 
 }

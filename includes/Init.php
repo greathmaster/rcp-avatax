@@ -14,6 +14,11 @@ class Init {
 	protected static $_instance;
 
 	/**
+	 * @var \RCP_Avatax\Registration
+	 */
+	public $registration;
+
+	/**
 	 * Only make one instance of \RCP_Avatax\Init
 	 *
 	 * @return Init
@@ -48,8 +53,8 @@ class Init {
 	protected function includes() {
 		Admin\Init::get_instance();
 
+		$this->registration = Registration::get_instance();
 		MemberFields::get_instance();
-		Registration::get_instance();
 	}
 
 	/**
