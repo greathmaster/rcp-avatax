@@ -21,109 +21,52 @@ class ResponseTax extends Response {
 
 
 	/**
-	 * Get the calculated line items.
+	 * Get the tax details.
 	 *
 	 * @since 1.0.0
-	 * @return array The calculated line items
+	 * @return array The calculated line item
 	 */
-	public function get_lines() {
+	public function get_details() {
 
-		$lines = array();
-
-		foreach ( $this->TaxLines as $line ) {
-
-			$lines[] = array(
-				'id'    => $line->LineNo,
-				'total' => $line->Tax,
-				'code'  => $line->TaxCode,
-				'rate'  => ( 0 === $line->Taxable ) ? 0 : $line->Rate,
-			);
+		if ( empty( $this->response_data ) ) {
+			return array();
 		}
 
-		return $lines;
+		$details = array(
+			'taxable' => sanitize_text_field( $this->get_detail( 'totalTaxable' ) ),
+			'tax'     => sanitize_text_field( $this->get_detail( 'totalTax' ) ),
+			'rate'    => round( $this->get_detail( 'taxRate' ), 4 ),
+		);
+
+		return apply_filters( 'rcp_avatax_response_tax_get_details', $details, $this );
 	}
 
-
 	/**
-	 * Get the origin address.
+	 * Get response detail
 	 *
-	 * @since 1.0.0
-	 * @return array The origin address
+	 * @param $var
+	 *
+	 * @return mixed
 	 */
-	public function get_origin_address() {
+	public function get_detail( $var ) {
 
-		// Get the origin address
-		foreach ( $this->TaxAddresses as $address ) {
+		$data = $this->response_data;
 
-			if ( 'origin' === $address->AddressCode ) {
+		switch( $var ) {
+			case 'taxRate' :
+				$value = 0;
 
-				// Map the API response to their proper keys
-				$address = array(
-					'address_1' => $address->Address,
-					'city'      => $address->City,
-					'state'     => $address->Region,
-					'country'   => $address->Country,
-					'postcode'  => $address->PostalCode,
-				);
+				foreach( (array) $data->lines[0]->details as $detail ) {
+					$value += $detail->rate;
+				}
 
 				break;
-			}
-		}
-
-		return $address;
-	}
-
-
-	/**
-	 * Get the destination address.
-	 *
-	 * @since 1.1.0
-	 * @return array The destination address
-	 */
-	public function get_destination_address() {
-
-		// Get the destination address
-		foreach ( $this->TaxAddresses as $address ) {
-
-			if ( 'destination' === $address->AddressCode ) {
-
-				// Map the API response to their proper keys
-				$address = array(
-					'address_1' => $address->Address,
-					'city'      => $address->City,
-					'state'     => $address->Region,
-					'country'   => $address->Country,
-					'postcode'  => $address->PostalCode,
-				);
-
+			default :
+				$value = $data->$var;
 				break;
-			}
 		}
 
-		return $address;
+		return apply_filters( 'rcp_avatax_response_tax_get_detail', $value, $var, $this );
 	}
 
-
-	/**
-	 * Get the total tax amount.
-	 *
-	 * @since 1.0.0
-	 * @return float The total tax calculated.
-	 */
-	public function get_total_tax() {
-
-		return $this->TotalTax;
-	}
-
-
-	/**
-	 * Get the effective tax date.
-	 *
-	 * @since 1.0.0
-	 * @return string The effective tax date in YYYY-MM-DD format.
-	 */
-	public function get_tax_date() {
-
-		return $this->TaxDate;
-	}
 }

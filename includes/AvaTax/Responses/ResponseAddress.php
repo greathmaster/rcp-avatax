@@ -28,30 +28,37 @@ class ResponseAddress extends Response {
 	 */
 	public function get_normalized_address() {
 
-		$data = $this->Address;
-
-		// The AvaTax API returns addresses with lines 1 & 2 reversed if a line 2 was included.
-		if ( isset( $data->Line2 ) ) {
-			$line_1 = $data->Line2;
-			$line_2 = $data->Line1;
-		} else {
-			$line_1 = $data->Line1;
-			$line_2 = '';
-		}
+		$data = $this->response_data->address;
 
 		// Map the API response to their proper keys
 		$address = array(
-			'address_1' => $line_1,
-			'address_2' => $line_2,
-			'city'      => $data->City,
-			'state'     => $data->Region,
-			'country'   => $data->Country,
-			'postcode'  => $data->PostalCode,
+			'rcp_card_address'   => $data->line1,
+			'rcp_card_address_2' => $data->line2,
+			'rcp_card_city'      => $data->city,
+			'rcp_card_state'     => $data->region,
+			'rcp_card_country'   => $data->country,
+			'rcp_card_zip'       => $data->postalCode,
 		);
 
 		// Make sure the address values are squeaky clean
-		$address = array_map( 'wc_clean', $address );
+		$address = array_map( 'sanitize_text_field', $address );
 
 		return $address;
+	}
+
+	public function get_validation_messages( $severity = 'Error' ) {
+
+		$messages          = array();
+		$response_messages = empty( $this->response_data->messages ) ? array() : $this->response_data->messages;
+
+		foreach( (array) $response_messages as $message ) {
+			if ( $severity && $severity != $message->severity ) {
+				continue;
+			}
+
+			$messages[ $message->summary ] = $message->details;
+		}
+
+		return apply_filters( 'rcp_avatax_response_address_validation_messages', $messages, $severity, $this );
 	}
 }

@@ -14,9 +14,14 @@ class Init {
 	protected static $_instance;
 
 	/**
-	 * @var \RCP_Avatax\Registration
+	 * @var HandleTaxes
 	 */
-	public $registration;
+	public $handle_taxes;
+
+	/**
+	 * @var MemberFields
+	 */
+	public $member_fields;
 
 	/**
 	 * Only make one instance of \RCP_Avatax\Init
@@ -53,8 +58,10 @@ class Init {
 	protected function includes() {
 		Admin\Init::get_instance();
 
-		$this->registration = Registration::get_instance();
-		MemberFields::get_instance();
+		$this->handle_taxes  = HandleTaxes::get_instance();
+		$this->member_fields = MemberFields::get_instance();
+
+		Gateways\Stripe::get_instance();
 	}
 
 	/**
@@ -231,7 +238,7 @@ class Init {
 	 * @param      $subscription_id
 	 * @param null $key
 	 *
-	 * @return mixed|void
+	 * @return mixed
 	 */
 	public static function meta_get( $subscription_id, $key = null ) {
 		$meta = get_option( Levels::get_option_key(), array() );
@@ -258,16 +265,6 @@ class Init {
 		$environment    = 'sandbox';
 
 		return new API( $account_number, $license_key, $environment );
-	}
-
-	/**
-	 * Calculate registration tax
-	 *
-	 * @return object
-	 */
-	public static function calculate_registration_tax() {
-		$request = self::new_request();
-		return $request->calculate_registration_tax();
 	}
 
 }

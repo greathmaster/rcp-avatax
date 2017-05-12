@@ -24,6 +24,7 @@
 
 namespace RCP_Avatax\AvaTax;
 
+use RCP_Avatax\AvaTax\Responses\ResponseTax;
 use SkilledCode\RequestAPI\Base;
 use SkilledCode\RequestAPI\Exception;
 
@@ -65,28 +66,39 @@ class API extends Base {
 	/**
 	 * Get the calculated tax for the current cart at checkout.
 	 * @param null $post_data
+	 * @param bool $commit
 	 *
 	 * @return object
 	 * @throws \Exception
 	 * @throws \SkilledCode\Exception
 	 */
-	public function calculate_registration_tax( $post_data = null ) {
+	public function calculate_registration_tax( $post_data = null, $commit = false ) {
 
 		$request = $this->get_new_request( 'tax' );
 
-		try {
+		// Process data
+		$request->set_checkout_parameters( $post_data, $commit );
 
-			// Process data
-			$request->process_checkout( $post_data );
+		// Perform request
+		$request = $this->perform_request( $request );
 
-			// Perform request
-			return $this->perform_request( $request );
+		return $request;
+	}
 
-		} catch ( \SkilledCode\Exception $e ) {
+	/**
+	 * @param $args
+	 *
+	 * @return ResponseTax object
+	 */
+	public function process_payment( $args ) {
 
-			return $e;
+		$request = $this->get_new_request( 'tax' );
 
-		}
+		// Process data
+		$request->set_payment_parameters( $args );
+
+		// Perform request
+		return $this->perform_request( $request );
 
 	}
 
@@ -115,24 +127,6 @@ class API extends Base {
 		return $this->perform_request( $request );
 	}
 
-
-	/**
-	 * Void a document in Avalara based on a WooCommerce order.
-	 *
-	 * @since 1.0.0
-	 * @param int $order_id The associated order ID.
-	 * @return \WC_AvaTax_API_Tax_Response
-	 */
-	public function void_order( $order_id ) {
-
-		$request = $this->get_new_request();
-
-		$request->void_order( $order_id );
-
-		return $this->perform_request( $request );
-	}
-
-
 	/**
 	 * Test the API credentials.
 	 *
@@ -140,7 +134,7 @@ class API extends Base {
 	 * in the AvaTax docs.
 	 *
 	 * @since 1.0.0
-	 * @return bool
+	 * @return object
 	 */
 	public function test() {
 		$request = $this->get_new_request();
@@ -182,7 +176,7 @@ class API extends Base {
 			$response = $response->CancelTaxResult;
 		}
 
-		if ( empty( $response->code ) ) {
+		if ( ! empty( $response->error ) ) {
 			throw new Exception( $this->get_response_exception_message( $response ), $response_code );
 		}
 
@@ -224,36 +218,8 @@ class API extends Base {
 
 		}
 
-		return $default_message;
+		return apply_filters( 'rcp_avatax_response_exception_message', $default_message, $response );
 
-		$message = $response->error;
-
-		switch ( $message->message ) {
-
-			case 'Field customerCode is required.':
-				$summary = __( 'Billing email address is missing.', 'rcp-avatax' );
-			break;
-
-			case 'An Address is incomplete or invalid.':
-
-				if ( 'Addresses[0]' === $message->RefersTo ) {
-					$summary = __( 'Invalid origin address. Please update your tax calculation settings.', 'rcp-avatax' );
-				} else {
-					$summary = __( 'Invalid destination address.', 'rcp-avatax' );
-				}
-
-			break;
-
-			case 'Lines is expected to be between 1 and 15000.':
-				$summary = __( 'The order has no line items.', 'rcp-avatax' );
-			break;
-
-			default:
-				$summary = $message->Summary;
-			break;
-		}
-
-		return $summary;
 	}
 
 

@@ -31,7 +31,7 @@ class Request extends RequestJSON {
 	 */
 	public function __construct() {
 
-		$this->method = 'GET';
+		$this->method = 'POST';
 	}
 
 	/**

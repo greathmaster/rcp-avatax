@@ -24,10 +24,14 @@ class RequestAddress extends Request {
 	 *
 	 * @since 1.0.0
 	 * @param array $address The address details. @see `API::validate_address()` for formatting.
-	 * @return object The validated and normalized address.
 	 */
 	public function validate_address( $address ) {
-		$this->path = 'address/validate?' . http_build_query( $this->prepare_address( $address ), '', '&' );
+
+		$address = apply_filters( 'rcp_avatax_set_params_address', $this->prepare_address( $address ), $address );
+
+		$this->path   = 'addresses/resolve/';
+		$this->params = $address;
+
 	}
 
 }

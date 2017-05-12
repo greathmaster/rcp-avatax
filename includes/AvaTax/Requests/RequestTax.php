@@ -23,24 +23,13 @@ defined( 'ABSPATH' ) or exit;
 class RequestTax extends Request {
 
 	/**
-	 * Construct the tax request object.
-	 *
-	 * @since 1.0.0
-	 */
-	public function __construct() {
-		$this->method = 'POST';
-	}
-
-
-	/**
 	 * Get the calculated tax for the current cart at checkout.
 	 *
 	 * @param $post_data
 	 * @since 1.0.0
-	 * @throws \Exception
-	 * @throws \SkilledCode\Exception
+	 * @throws Exception
 	 */
-	public function process_checkout( $post_data = null ) {
+	public function set_checkout_parameters( $post_data = null, $commit = false ) {
 
 		if ( empty( $post_data ) ) {
 			$post_data = $_POST;
@@ -48,24 +37,86 @@ class RequestTax extends Request {
 
 		$args = array();
 
-		try {
-
-			$args['addresses'] = array(
-				'SingleLocation' => $this->prepare_address( $post_data ),
-			);
-
-			$args['lines'] = $this->prepare_lines();
-
-			// Set the VAT if it exists
-			if ( $vat = Helpers::get_param( $post_data, 'rcp_vat_id' ) ) {
-				$args['businessIdentificationNo'] = $vat;
-			}
-
-			$this->set_params( $args );
-
-		} catch ( \SkilledCode\Exception $e ) {
-			throw $e;
+		if ( is_user_logged_in() ) {
+			$args['customerCode'] = wp_get_current_user()->user_email;
+		} elseif ( ! empty( $_POST['rcp_user_email'] ) ) {
+			$args['customerCode'] = $_POST['rcp_user_email'];
 		}
+
+		$args['addresses'] = array(
+			'SingleLocation' => $this->prepare_address( $post_data ),
+		);
+
+		$args['lines'] = $this->prepare_lines();
+
+		// Set the VAT if it exists
+		if ( $vat = Helpers::get_param( $post_data, 'rcp_vat_id' ) ) {
+			$args['businessIdentificationNo'] = $vat;
+		}
+
+		if ( $commit ) {
+			$args['commit'] = $this->commit_calculations();
+		}
+
+		$this->set_params( $args );
+
+	}
+
+	/**
+	 * Get the calculated tax for the current cart at checkout.
+	 *
+	 * @param $payment_args
+	 * @since 1.0.0
+	 * @throws Exception
+	 */
+	public function set_payment_parameters( $payment_args ) {
+
+		$defaults = array(
+			'payment_id'   => 0,
+			'subscription' => '',
+			'amount'       => 0,
+			'user_id'      => 0,
+			'status'       => 'pending',
+		);
+
+		$payment_args = wp_parse_args( (array) $payment_args, $defaults );
+
+		if ( ! $subscription = rcp_get_subscription_details_by_name( $payment_args['subscription'] ) ) {
+			throw new Exception( 'The subscription level is invalid.' );
+		}
+
+		$args = array(
+			'commit'       => $this->commit_calculations(),
+			'code'         => $payment_args['payment_id'],
+			'type'         => 'SalesInvoice',
+			'customerCode' => get_userdata( $payment_args['user_id'] )->user_email,
+		);
+
+		$address           = rcp_avatax()->member_fields->get_user_address( $payment_args['user_id'] );
+		$args['addresses'] = array(
+			'SingleLocation' => $this->prepare_address( $address ),
+		);
+
+		if ( ! $item = rcp_avatax()::meta_get( $subscription->id, 'avatax-item' ) ) {
+			throw new Exception( 'This subscription level does not have a related AvaTax item.' );
+		}
+
+		$args['lines'] = array(
+			array(
+				'id'          => $subscription->id,
+				'quantity'    => 1,
+				'amount'      => $payment_args['amount'],
+				'itemCode'    => $item,
+				'taxIncluded' => true,
+			)
+		);
+
+		// Set the VAT if it exists
+		if ( $vat = Helpers::get_param( $address, 'rcp_vat_id' ) ) {
+			$args['businessIdentificationNo'] = $vat;
+		}
+
+		$this->set_params( $args );
 
 	}
 

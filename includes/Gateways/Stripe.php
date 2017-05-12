@@ -23,12 +23,21 @@ class Stripe {
 	}
 
 	protected function __construct() {
-		add_filter( 'rcp_stripe_create_subscription_args', array( $this, 'add_tax' ), 10, 2 );
+		add_filter( 'rcp_stripe_create_subscription_args', array( $this, 'add_tax_to_charge' ), 10, 2 );
+		add_action( 'rcp_stripe_charge_succeeded', array( $this, 'record_tax' ), 10, 3 );
 	}
 
-	public function add_tax( $sub_args, $stripe_gateway ) {
-		rcp_avatax()->registration->total;
+	public function add_tax_to_charge( $sub_args, $stripe_gateway ) {
+
+		if ( rcp_avatax()->handle_taxes->rate ) {
+			$sub_args['tax_percent'] = 100 * rcp_avatax()->handle_taxes->rate;
+		}
+
 		return $sub_args;
+	}
+
+	public function record_tax( $user, $payment_data, $event ) {
+
 	}
 
 }

@@ -10,7 +10,6 @@
 
 namespace SkilledCode\RequestAPI;
 
-use SkilledCode\Exception;
 use SkilledCode\Helpers;
 
 defined( 'ABSPATH' ) or exit;
@@ -79,6 +78,12 @@ abstract class Base {
 	 */
 	protected function perform_request( $request ) {
 
+		$key = md5( serialize( $request ) );
+
+		if ( $response = get_transient( $key ) ) {
+			return $response;
+		}
+
 		// ensure API is in its default state
 		$this->reset_response();
 
@@ -102,6 +107,7 @@ abstract class Base {
 
 			// parse & validate response
 			$response = $this->handle_response( $response );
+			set_transient( $key, $response, $this->get_cache_expiration() );
 
 		} catch ( Exception $e ) {
 
@@ -112,6 +118,13 @@ abstract class Base {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	protected function get_cache_expiration() {
+		return apply_filters( 'sc_cache_expiration_time', DAY_IN_SECONDS );
 	}
 
 
