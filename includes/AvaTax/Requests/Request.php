@@ -13,6 +13,7 @@ namespace RCP_Avatax\AvaTax\Requests;
 use SkilledCode\RequestAPI\RequestJSON;
 use SkilledCode\RequestAPI\Exception;
 use SkilledCode\Helpers;
+use RCP_Avatax\Init as RCP_Avatax;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -47,7 +48,7 @@ class Request extends RequestJSON {
 		$this->path   = 'tax/cancel';
 		$this->params = array(
 			'CancelCode'  => 'DocVoided',
-			'CompanyCode' => Helpers::str_truncate( rcp_avatax()::get_settings( 'avatax_company_code' ), 25, '' ),
+			'CompanyCode' => Helpers::str_truncate( RCP_Avatax::get_settings( 'avatax_company_code' ), 25, '' ),
 			'DocCode'     => Helpers::str_truncate( $doc_code, 50, '' ),
 			'DocType'     => 'SalesInvoice',
 		);

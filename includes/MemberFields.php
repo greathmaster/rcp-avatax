@@ -3,6 +3,7 @@
 namespace RCP_Avatax;
 
 use Iso3166\Codes;
+use RCP_Avatax\Init as RCP_Avatax;
 
 class MemberFields {
 
@@ -166,7 +167,7 @@ class MemberFields {
 
 			<legend><?php echo apply_filters( 'rcp_avatax_address_title', __( 'Billing Address', 'rcp-avatax' ) ); ?></legend>
 
-			<?php if ( apply_filters( 'rcp_avatax_show_vat', rcp_avatax()::get_settings( 'show_vat', false ) ) ): ?>
+			<?php if ( apply_filters( 'rcp_avatax_show_vat', RCP_Avatax::get_settings( 'show_vat', false ) ) ): ?>
 				<p id="rcp_vat_id_wrap">
 					<label for="rcp_vat_id"><?php _e( 'VAT ID', 'rcptx' ); ?></label>
 					<input name="rcp_vat_id" id="rcp_vat_id" type="text" value="<?php echo $this->get_field( 'rcp_vat_id', $user_id ); ?>" />

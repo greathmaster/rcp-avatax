@@ -33,6 +33,17 @@ define( 'RCP_AVATAX_ITEM_NAME', 'Restrict Content Pro - AvaTax' );
 require_once( RCP_AVATAX_PLUGIN_DIR . 'vendor/autoload.php' );
 
 /**
+ * @var RCP_Avatax\Init
+ */
+global $rcp_avatax;
+
+if( version_compare( PHP_VERSION, '5.3', '<' ) ) {
+
+} else {
+	$rcp_avatax = rcp_avatax();
+}
+
+/**
  * Load plugin text domain for translations.
  *
  * @return void
@@ -79,6 +90,9 @@ function rcp_avatax_load_textdomain() {
 }
 add_action( 'init', 'rcp_avatax_load_textdomain' );
 
+/**
+ * @return \RCP_Avatax\Init
+ */
 function rcp_avatax() {
 	return RCP_Avatax\Init::get_instance();
 }
@@ -98,15 +112,4 @@ function rcp_avatax_param_get( $array, $key, $default = '' ) {
 	}
 
 	return apply_filters( 'rcp_avatax_param_get', $array[ $key ], $array, $key, $default );
-}
-
-/*******************************************
-* requirement checks
-*******************************************/
-
-if( version_compare( PHP_VERSION, '5.3', '<' ) ) {
-
-
-} else {
-	rcp_avatax();
 }

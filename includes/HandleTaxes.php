@@ -4,6 +4,7 @@ namespace RCP_Avatax;
 
 use SkilledCode\Helpers;
 use SkilledCode\RequestAPI\Exception;
+use RCP_Avatax\Init as RCP_Avatax;
 
 class HandleTaxes {
 
@@ -88,7 +89,7 @@ class HandleTaxes {
 				return;
 			}
 
-			$request = rcp_avatax()::new_request();
+			$request = RCP_Avatax::new_request();
 			$response = $request->calculate_registration_tax();
 
 			if ( ! isset( $response->response_data->lines[0]->tax, $response->response_data->lines[1]->tax ) ) {
@@ -156,7 +157,7 @@ class HandleTaxes {
 
 			$args['payment_id'] = $payment_id;
 
-			$request  = rcp_avatax()::new_request();
+			$request  = RCP_Avatax::new_request();
 			$response = $request->process_payment( $args );
 
 			$details = $response->get_details();
@@ -182,7 +183,7 @@ class HandleTaxes {
 
 		try {
 
-			$request = rcp_avatax()::new_request();
+			$request = RCP_Avatax::new_request();
 			$response = $request->validate_address( $_post );
 
 			foreach( $response->get_validation_messages() as $key => $message ) {

@@ -12,6 +12,7 @@ namespace RCP_Avatax\Avatax\Requests;
 
 use SkilledCode\Helpers;
 use SkilledCode\RequestAPI\Exception;
+use RCP_Avatax\Init as RCP_Avatax;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -97,7 +98,7 @@ class RequestTax extends Request {
 			'SingleLocation' => $this->prepare_address( $address ),
 		);
 
-		if ( ! $item = rcp_avatax()::meta_get( $subscription->id, 'avatax-item' ) ) {
+		if ( ! $item = RCP_Avatax::meta_get( $subscription->id, 'avatax-item' ) ) {
 			throw new Exception( 'This subscription level does not have a related AvaTax item.' );
 		}
 
@@ -145,7 +146,7 @@ class RequestTax extends Request {
 		$defaults = array(
 			'type'                     => 'SalesOrder',
 			'code'                     => null,
-			'companyCode'              => rcp_avatax()::get_settings( 'avatax_company_code' ),
+			'companyCode'              => RCP_Avatax::get_settings( 'avatax_company_code' ),
 			'date'                     => date( 'Y-m-d', current_time( 'timestamp' ) ),
 			'customerCode'             => '99999',
 			'discount'                 => null,
@@ -180,7 +181,7 @@ class RequestTax extends Request {
 			$subscription_id = rcp_get_registration()->get_subscription();
 		}
 
-		if ( ! $item = rcp_avatax()::meta_get( $subscription_id, 'avatax-item' ) ) {
+		if ( ! $item = RCP_Avatax::meta_get( $subscription_id, 'avatax-item' ) ) {
 			throw new Exception( 'This subscription level does not have a related AvaTax item.' );
 		}
 

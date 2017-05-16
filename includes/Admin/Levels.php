@@ -51,9 +51,7 @@ class Levels {
 	}
 
 	public function meta_fields( $level = null ) {
-
-		$avatax   = rcp_avatax();
-		$tax_code = ( empty( $level->id ) ) ? 0 : $avatax::meta_get( $level->id, 'avatax-item' ); ?>
+		$tax_code = ( empty( $level->id ) ) ? 0 : RCP_Avatax::meta_get( $level->id, 'avatax-item' ); ?>
 
 		<tr class="form-field">
 			<th scope="row" valign="top">
@@ -77,13 +75,12 @@ class Levels {
 	 * @param $args
 	 */
 	public function handle_meta_save( $subscription_id, $args ) {
-
 		// make sure the member type is set
 		if ( empty( $_POST['rcp-avatax'] ) ) {
 			return;
 		}
 
-		rcp_avatax()::meta_save( $subscription_id, $_POST['rcp-avatax'] );
+		RCP_Avatax::meta_save( $subscription_id, $_POST['rcp-avatax'] );
 	}
 
 	/**
