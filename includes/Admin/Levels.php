@@ -52,7 +52,8 @@ class Levels {
 
 	public function meta_fields( $level = null ) {
 
-		$tax_code = ( empty( $level->id ) ) ? 0 : rcp_avatax()::meta_get( $level->id, 'avatax-item' ); ?>
+		$avatax   = rcp_avatax();
+		$tax_code = ( empty( $level->id ) ) ? 0 : $avatax::meta_get( $level->id, 'avatax-item' ); ?>
 
 		<tr class="form-field">
 			<th scope="row" valign="top">
