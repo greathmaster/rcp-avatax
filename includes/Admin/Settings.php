@@ -123,6 +123,16 @@ class Settings {
 							<p class="description"><?php _e( 'Enter the Avalara Company Code to use.', 'rcp-avatax' ); ?></p>
 						</td>
 					</tr>
+					<tr valign="top">
+						<th>
+							<label for="rcp_avatax[show_vat_field]"><?php _e( 'Show EU VAT field', 'rcp-avatax' ); ?></label>
+						</th>
+						<td>
+							<input type="checkbox" id="rcp_avatax[show_vat_field]" name="rcp_avatax[show_vat_field]" <?php checked( RCP_Avatax::get_settings( 'show_vat_field' ) ); ?> />
+
+							<p class="description"><?php _e( 'Show the EU VAT field during registration.', 'rcp-avatax' ); ?></p>
+						</td>
+					</tr>
 				</table>
 
 				<?php settings_fields( 'rcp_avatax_settings_group' ); ?>
@@ -148,6 +158,8 @@ class Settings {
 		if ( $old_license && $old_license != $new_licence ) {
 			delete_option( 'rcp_avatax_license_status' ); // new license has been entered, so must reactivate
 		}
+
+		$new['show_vat_field'] = isset( $new['show_vat_field'] ) ? true : false;
 
 		return array_map( 'sanitize_text_field', $new );
 	}

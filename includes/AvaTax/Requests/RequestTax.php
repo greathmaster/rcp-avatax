@@ -10,6 +10,7 @@
 
 namespace RCP_Avatax\Avatax\Requests;
 
+use RCP_Avatax\AvaTax\Requests\Request;
 use SkilledCode\Helpers;
 use SkilledCode\RequestAPI\Exception;
 use RCP_Avatax\Init as RCP_Avatax;
@@ -45,7 +46,7 @@ class RequestTax extends Request {
 		}
 
 		$args['addresses'] = array(
-			'SingleLocation' => $this->prepare_address( $post_data ),
+			'ShipTo' => $this->prepare_address( $post_data ),
 		);
 
 		$args['lines'] = $this->prepare_lines();
@@ -95,8 +96,13 @@ class RequestTax extends Request {
 
 		$address           = rcp_avatax()->member_fields->get_user_address( $payment_args['user_id'] );
 		$args['addresses'] = array(
-			'SingleLocation' => $this->prepare_address( $address ),
+			'ShipTo' => $this->prepare_address( $address ),
 		);
+
+		// Set the VAT if it exists
+		if ( $vat = Helpers::get_param( $payment_args, 'rcp_vat_id' ) ) {
+			$args['businessIdentificationNo'] = $vat;
+		}
 
 		if ( ! $item = RCP_Avatax::meta_get( $subscription->id, 'avatax-item' ) ) {
 			throw new Exception( 'This subscription level does not have a related AvaTax item.' );
@@ -151,7 +157,7 @@ class RequestTax extends Request {
 			'customerCode'             => '99999',
 			'discount'                 => null,
 			'addresses'                => array(
-				'SingleLocation' => array(),
+				'ShipTo' => array(),
 			),
 			'lines'                    => array(),
 			'commit'                   => false,

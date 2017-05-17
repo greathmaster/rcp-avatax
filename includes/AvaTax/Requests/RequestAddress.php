@@ -10,6 +10,8 @@
 
 namespace RCP_Avatax\AvaTax\Requests;
 
+use RCP_Avatax\AvaTax\Requests\Request;
+
 defined( 'ABSPATH' ) or exit;
 
 /**

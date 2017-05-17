@@ -10,6 +10,8 @@
 
 namespace SkilledCode\RequestAPI;
 
+use SkilledCode\Exception as SK_Exception;
+
 defined( 'ABSPATH' ) or exit;
 
 if ( ! class_exists( 'SV_WC_API_Exception' ) ) :
@@ -17,6 +19,6 @@ if ( ! class_exists( 'SV_WC_API_Exception' ) ) :
 	/**
 	 * Plugin Framework API Exception - generic API Exception
 	 */
-	class Exception extends \SkilledCode\Exception { }
+	class Exception extends SK_Exception { }
 
 endif;  // class exists check
