@@ -3,6 +3,7 @@
 namespace RCP_Avatax\Admin;
 
 use RCP_Avatax\Init as RCP_Avatax;
+use RCP_Avatax\AvaTax\API;
 
 class Settings {
 
@@ -57,6 +58,8 @@ class Settings {
 		if ( isset( $_REQUEST['updated'] ) && $_REQUEST['updated'] !== false ) : ?>
 			<div class="updated fade"><p><strong><?php _e( 'Options saved', 'rcp-avatax' ); ?></strong></p></div>
 		<?php endif; ?>
+
+		<?php settings_errors(); ?>
 
 		<div class="rcp-avatax-wrap">
 
@@ -125,19 +128,54 @@ class Settings {
 					</tr>
 					<tr valign="top">
 						<th>
+							<label for="rcp_avatax[sandbox_mode]"><?php _e( 'Sandbox Mode', 'rcp-avatax' ); ?></label>
+						</th>
+						<td>
+							<input type="checkbox" id="rcp_avatax[sandbox_mode]" name="rcp_avatax[sandbox_mode]" <?php checked( RCP_Avatax::get_settings( 'sandbox_mode' ) ); ?> />
+							<span class="description"><?php _e( 'Use RCP - AvaTax in Sandbox mode.', 'rcp-avatax' ); ?></span>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th>
 							<label for="rcp_avatax[show_vat_field]"><?php _e( 'Show EU VAT field', 'rcp-avatax' ); ?></label>
 						</th>
 						<td>
 							<input type="checkbox" id="rcp_avatax[show_vat_field]" name="rcp_avatax[show_vat_field]" <?php checked( RCP_Avatax::get_settings( 'show_vat_field' ) ); ?> />
-
-							<p class="description"><?php _e( 'Show the EU VAT field during registration.', 'rcp-avatax' ); ?></p>
+							<span class="description"><?php _e( 'Show the EU VAT field during registration.', 'rcp-avatax' ); ?></span>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th>
+							<label for="rcp_avatax[disable_commit]"><?php _e( 'Disable Document Commit', 'rcp-avatax' ); ?></label>
+						</th>
+						<td>
+							<input type="checkbox" id="rcp_avatax[disable_commit]" name="rcp_avatax[disable_commit]" <?php checked( RCP_Avatax::get_settings( 'disable_commit' ) ); ?> />
+							<span class="description"><?php _e( 'Causes the document to not be committed to AvaTax.', 'rcp-avatax' ); ?></span>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th>
+							<label for="rcp_avatax[disable_calculation]"><?php _e( 'Disable Checkout Calculation', 'rcp-avatax' ); ?></label>
+						</th>
+						<td>
+							<input type="checkbox" id="rcp_avatax[disable_calculation]" name="rcp_avatax[disable_calculation]" <?php checked( RCP_Avatax::get_settings( 'disable_calculation' ) ); ?> />
+							<span class="description"><?php _e( 'Disable calculation of taxes on the registration page. Taxes will still be calculated for payments.', 'rcp-avatax' ); ?></span>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th>
+							<label for="rcp_avatax[test_connection]"><?php _e( 'Test AvaTax Connection', 'rcp-avatax' ); ?></label>
+						</th>
+						<td>
+							<input type="checkbox" id="rcp_avatax[test_connection]" name="rcp_avatax[test_connection]" />
+							<span class="description"><?php _e( 'Test the connection to AvaTax.', 'rcp-avatax' ); ?></span>
 						</td>
 					</tr>
 				</table>
 
 				<?php settings_fields( 'rcp_avatax_settings_group' ); ?>
 				<?php wp_nonce_field( 'rcp_avatax_nonce', 'rcp_avatax_nonce' ); ?>
-				<?php submit_button( 'Save Options' ); ?>
+				<?php submit_button( __( 'Save Settings', 'rcp-avatax' ) ); ?>
 
 			</form>
 		</div>
@@ -159,7 +197,21 @@ class Settings {
 			delete_option( 'rcp_avatax_license_status' ); // new license has been entered, so must reactivate
 		}
 
-		$new['show_vat_field'] = isset( $new['show_vat_field'] ) ? true : false;
+		$new['show_vat_field']      = isset( $new['show_vat_field'] ) ? true : false;
+		$new['sandbox_mode']        = isset( $new['sandbox_mode'] ) ? true : false;
+		$new['disable_commit']      = isset( $new['disable_commit'] ) ? true : false;
+		$new['disable_calculation'] = isset( $new['disable_calculation'] ) ? true : false;
+
+		if ( ! empty( $new['test_connection'] ) && ! empty( $new['avatax_account_number'] ) && ! empty( $new['avatax_license_key'] ) && ! empty( $new['avatax_company_code'] ) ) {
+			$request = new API( $new['avatax_account_number'], $new['avatax_license_key'] );
+			$response = $request->test( $new['avatax_company_code'] );
+
+			if ( $response->response_data->authenticated ) {
+				add_settings_error( 'general', 'avatax_connection', __( 'Connection to AvaTax was successful.', 'rcp-avatax' ), 'updated' );
+			} else {
+				add_settings_error( 'general', 'avatax_connection', __( 'There was an error connecting to AvaTax. Please verify your credentials.', 'rcp-avatax' ), 'error' );
+			}
+		}
 
 		return array_map( 'sanitize_text_field', $new );
 	}

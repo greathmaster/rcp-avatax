@@ -65,15 +65,11 @@ class Request extends RequestJSON {
 	 * Test the API credentials.
 	 *
 	 * @since 1.0.0
+	 * @param $company
 	 */
-	public function test() {
-
-		$path = 'tax/';
-
-		// Add some coordinates to complete the request.
-		$path .= '35.0820877,-106.9566669/get';
-
-		$this->path = add_query_arg( 'saleamount', 0, $path );
+	public function test( $company ) {
+		$this->method = 'GET';
+		$this->path = 'utilities/ping';
 	}
 
 

@@ -72,15 +72,16 @@ abstract class Base {
 	 *
 	 * @since 1.0.0
 	 * @param object $request class instance which implements
+	 * @param bool $cache whether or not to cache this request
 	 * @throws \Exception
 	 * @throws Exception
 	 * @return object class instance which implements
 	 */
-	protected function perform_request( $request ) {
+	protected function perform_request( $request, $cache = true ) {
 
 		$key = md5( serialize( $request ) );
 
-		if ( $response = get_transient( $key ) ) {
+		if ( $cache && $response = get_transient( $key ) ) {
 			return $response;
 		}
 
@@ -107,7 +108,10 @@ abstract class Base {
 
 			// parse & validate response
 			$response = $this->handle_response( $response );
-			set_transient( $key, $response, $this->get_cache_expiration() );
+
+			if ( $cache ) {
+				set_transient( $key, $response, $this->get_cache_expiration() );
+			}
 
 		} catch ( Exception $e ) {
 

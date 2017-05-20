@@ -25,6 +25,7 @@
 namespace RCP_Avatax\AvaTax;
 
 use RCP_Avatax\AvaTax\Responses\ResponseTax;
+use RCP_Avatax\Init as RCP_Avatax;
 use SkilledCode\RequestAPI\Base;
 use SkilledCode\RequestAPI\Exception;
 
@@ -50,11 +51,10 @@ class API extends Base {
 	 * @since 1.0.0
 	 * @param string $account_number The AvaTax account number.
 	 * @param string $license_key The AvaTax license key.
-	 * @param string $environment The current API environment, either `production` or `development`.
 	 */
-	public function __construct( $account_number, $license_key, $environment ) {
+	public function __construct( $account_number, $license_key ) {
 
-		$this->request_uri = ( 'production' === $environment ) ? 'https://rest.avatax.com/api/v2/' : 'https://sandbox-rest.avatax.com/api/v2/';
+		$this->request_uri = ( RCP_Avatax::get_settings( 'sandbox_mode', false ) ) ? 'https://sandbox-rest.avatax.com/api/v2/' : 'https://rest.avatax.com/api/v2/';
 
 		$this->set_request_content_type_header( 'application/json' );
 		$this->set_request_accept_header( 'application/json' );
@@ -66,18 +66,17 @@ class API extends Base {
 	/**
 	 * Get the calculated tax for the current cart at checkout.
 	 * @param null $post_data
-	 * @param bool $commit
 	 *
 	 * @return object
 	 * @throws \Exception
 	 * @throws \SkilledCode\Exception
 	 */
-	public function calculate_registration_tax( $post_data = null, $commit = false ) {
+	public function calculate_registration_tax( $post_data = null ) {
 
 		$request = $this->get_new_request( 'tax' );
 
 		// Process data
-		$request->set_checkout_parameters( $post_data, $commit );
+		$request->set_checkout_parameters( $post_data );
 
 		// Perform request
 		$request = $this->perform_request( $request );
@@ -134,14 +133,15 @@ class API extends Base {
 	 * in the AvaTax docs.
 	 *
 	 * @since 1.0.0
+	 * @param $company
 	 * @return object
 	 */
-	public function test() {
+	public function test( $company ) {
 		$request = $this->get_new_request();
 
-		$request->test();
+		$request->test( $company );
 
-		return $this->perform_request( $request );
+		return $this->perform_request( $request, false );
 	}
 
 

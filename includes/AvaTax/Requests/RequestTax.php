@@ -31,7 +31,7 @@ class RequestTax extends Request {
 	 * @since 1.0.0
 	 * @throws Exception
 	 */
-	public function set_checkout_parameters( $post_data = null, $commit = false ) {
+	public function set_checkout_parameters( $post_data = null ) {
 
 		if ( empty( $post_data ) ) {
 			$post_data = $_POST;
@@ -54,10 +54,6 @@ class RequestTax extends Request {
 		// Set the VAT if it exists
 		if ( $vat = Helpers::get_param( $post_data, 'rcp_vat_id' ) ) {
 			$args['businessIdentificationNo'] = $vat;
-		}
-
-		if ( $commit ) {
-			$args['commit'] = $this->commit_calculations();
 		}
 
 		$this->set_params( $args );
@@ -218,13 +214,13 @@ class RequestTax extends Request {
 	 * @return bool $commit Whether new tax documents should be committed on calculation.
 	 */
 	protected function commit_calculations() {
-
+		$disable_commit = RCP_Avatax::get_settings( 'disable_commit', false );
 		/**
 		 * Filter whether new tax documents should be committed on calculation.
 		 *
 		 * @since 1.0.0
 		 * @param bool $commit Whether new tax documents should be committed on calculation.
 		 */
-		return (bool) apply_filters( 'rcp_avatax_commit_calculations', ( 'yes' === get_option( 'wc_avatax_commit' ) ) );
+		return (bool) apply_filters( 'rcp_avatax_commit_calculations', ! $disable_commit );
 	}
 }

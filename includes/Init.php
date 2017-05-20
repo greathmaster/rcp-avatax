@@ -135,6 +135,7 @@ class Init {
 
 	/**
 	 * @param $key
+	 * @param $default
 	 *
 	 * @return string
 	 */
@@ -149,16 +150,7 @@ class Init {
 			$settings[ $key ] = $default;
 		}
 
-		return apply_filters( 'rcp_avatax_get_setting', $settings[ $key ], $key );
-	}
-
-	/**
-	 * Get the endpoint to use for AvaTax requests
-	 *
-	 * @return string
-	 */
-	public static function get_service_url() {
-		return 'https://development.avalara.net';
+		return apply_filters( 'rcp_avatax_get_setting', $settings[ $key ], $key, $default );
 	}
 
 	/**
@@ -262,9 +254,8 @@ class Init {
 	public static function new_request() {
 		$account_number = self::get_settings( 'avatax_account_number' );
 		$license_key    = self::get_settings( 'avatax_license_key' );
-		$environment    = 'sandbox';
 
-		return new API( $account_number, $license_key, $environment );
+		return new API( $account_number, $license_key );
 	}
 
 }

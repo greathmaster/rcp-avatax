@@ -78,8 +78,15 @@ class HandleTaxes {
 
 	/**
 	 * Calculate tax for this registration
+	 *
+	 * @param bool $registering | false if this is calculating
 	 */
-	public function calculate_tax() {
+	public function calculate_tax( $registering = false ) {
+
+		// make sure calculations are not disabled
+		if ( ! $registering && RCP_Avatax::get_settings( 'disable_calculation', false ) ) {
+			return;
+		}
 
 		try {
 
@@ -196,7 +203,19 @@ class HandleTaxes {
 
 	}
 
+	/**
+	 * Add the tax to the subscription data
+	 *
+	 * @param $subscription_data
+	 *
+	 * @return mixed
+	 */
 	public function add_subscription_tax( $subscription_data ) {
+
+		// make sure the taxes have been calculated
+		if ( null === $this->rate ) {
+			$this->calculate_tax( true );
+		}
 
 		if ( empty( $this->rate ) ) {
 			return $subscription_data;
