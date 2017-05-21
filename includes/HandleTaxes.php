@@ -49,6 +49,11 @@ class HandleTaxes {
 	public $recurring_tax_id = '';
 
 	/**
+	 * @var bool | whether or not this is an actual registration process
+	 */
+	public $registering = false;
+
+	/**
 	 * Only make one instance of HandleTaxes
 	 *
 	 * @return HandleTaxes
@@ -81,10 +86,10 @@ class HandleTaxes {
 	 *
 	 * @param bool $registering | false if this is calculating
 	 */
-	public function calculate_tax( $registering = false ) {
+	public function calculate_tax() {
 
 		// make sure calculations are not disabled
-		if ( ! $registering && RCP_Avatax::get_settings( 'disable_calculation', false ) ) {
+		if ( ! $this->registering && RCP_Avatax::get_settings( 'disable_calculation', false ) ) {
 			return;
 		}
 
@@ -214,7 +219,8 @@ class HandleTaxes {
 
 		// make sure the taxes have been calculated
 		if ( null === $this->rate ) {
-			$this->calculate_tax( true );
+			$this->registering = true;
+			$this->calculate_tax();
 		}
 
 		if ( empty( $this->rate ) ) {
