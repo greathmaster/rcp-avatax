@@ -161,7 +161,7 @@ class Logging {
 		$log_id = wp_insert_post( $args );
 
 		// Set the log type, if any
-		if ( $log_data['log_type'] && $this->valid_type( $log_data['log_type'] ) ) {
+		if ( $args['log_type'] && $this->valid_type( $args['log_type'] ) ) {
 			wp_set_object_terms( $log_id, $log_data['log_type'], 'rcp_avatax_log_type', false );
 		}
 
