@@ -110,6 +110,7 @@ class RequestTax extends Request {
 			'quantity'    => 1,
 			'amount'      => $payment_args['amount'],
 			'itemCode'    => $item,
+			'description' => $subscription->description,
 			'taxIncluded' => true,
 		);
 
