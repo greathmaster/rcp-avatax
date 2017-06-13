@@ -59,6 +59,9 @@ class API extends Base {
 		$this->set_request_content_type_header( 'application/json' );
 		$this->set_request_accept_header( 'application/json' );
 
+		$this->set_request_header( 'X-Avalara-Client', sprintf( '%s (RestrictContentPro/WordPress);%s (%s/%s);REST;v2;RCP', str_replace( ' ', '-', $this->get_plugin()->get_plugin_name() ), $this->get_plugin()->get_version(), RCP_PLUGIN_VERSION, $GLOBALS['wp_version'] ) );
+		$this->set_request_header( 'X-Avalara-UID', 'a0o33000004WUt6' );
+
 		// Set basic auth creds
 		$this->set_http_basic_auth( $account_number, $license_key );
 	}

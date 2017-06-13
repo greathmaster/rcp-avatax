@@ -50,15 +50,30 @@ class Levels {
 
 	}
 
+	/**
+	 * Add meta fields to the RCP levels
+	 * @param null $level
+	 */
 	public function meta_fields( $level = null ) {
-		$tax_code = ( empty( $level->id ) ) ? 0 : RCP_Avatax::meta_get( $level->id, 'avatax-item' ); ?>
+		$item_name = ( empty( $level->id ) ) ? 0 : RCP_Avatax::meta_get( $level->id, 'item' );
+		$tax_code  = ( empty( $level->id ) ) ? 0 : RCP_Avatax::meta_get( $level->id, 'taxcode' ); ?>
 
 		<tr class="form-field">
 			<th scope="row" valign="top">
-				<label for="rcp-avatax[avatax-item]"><?php _e( 'AvaTax Item', 'rcp-avatax' ); ?></label>
+				<label for="rcp-avatax[item]"><?php _e( 'AvaTax Item', 'rcp-avatax' ); ?></label>
 			</th>
 			<td>
-				<input id="rcp-avatax[avatax-item]" type="text" name="rcp-avatax[avatax-item]" value="<?php echo esc_attr( $tax_code ); ?>" style="width: 20em;"/>
+				<input id="rcp-avatax[item]" type="text" name="rcp-avatax[item]" value="<?php echo esc_attr( $item_name ); ?>" style="width: 20em;"/>
+				<p class="description"><?php _e( 'The AvaTax Item associated with this subscription level.', 'rcp-avatax' ); ?></p>
+			</td>
+		</tr>
+
+		<tr class="form-field">
+			<th scope="row" valign="top">
+				<label for="rcp-avatax[taxcode]"><?php _e( 'AvaTax TaxCode', 'rcp-avatax' ); ?></label>
+			</th>
+			<td>
+				<input id="rcp-avatax[taxcode]" type="text" name="rcp-avatax[taxcode]" value="<?php echo esc_attr( $tax_code ); ?>" style="width: 20em;"/>
 				<p class="description"><?php _e( 'The AvaTax Item associated with this subscription level.', 'rcp-avatax' ); ?></p>
 			</td>
 		</tr>
@@ -92,11 +107,16 @@ class Levels {
 	 */
 	public function sanitize_avatax_item( $values ) {
 
-		if ( empty( $values['avatax-item'] ) ) {
-			return $values;
-		}
+		$default = array(
+			'item' => '',
+			'taxcode' => '',
+		);
 
-		$values['avatax-item'] = sanitize_text_field( $values['avatax-item'] );
+		wp_parse_args( $values, $default );
+
+		$values['item']    = sanitize_text_field( $values['item'] );
+		$values['taxcode'] = sanitize_text_field( $values['taxcode'] );
+
 		return $values;
 
 	}

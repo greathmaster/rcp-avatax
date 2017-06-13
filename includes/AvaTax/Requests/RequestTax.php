@@ -92,7 +92,8 @@ class RequestTax extends Request {
 
 		$address           = rcp_avatax()->member_fields->get_user_address( $payment_args['user_id'] );
 		$args['addresses'] = array(
-			'ShipTo' => $this->prepare_address( $address ),
+			'ShipFrom' => $this->get_company_address(),
+			'ShipTo'   => $this->prepare_address( $address ),
 		);
 
 		// Set the VAT if it exists
@@ -100,19 +101,23 @@ class RequestTax extends Request {
 			$args['businessIdentificationNo'] = $vat;
 		}
 
-		if ( ! $item = RCP_Avatax::meta_get( $subscription->id, 'avatax-item' ) ) {
+		if ( ! $item = RCP_Avatax::meta_get( $subscription->id, 'item' ) ) {
 			throw new Exception( 'This subscription level does not have a related AvaTax item.' );
 		}
 
-		$args['lines'] = array(
-			array(
-				'id'          => $subscription->id,
-				'quantity'    => 1,
-				'amount'      => $payment_args['amount'],
-				'itemCode'    => $item,
-				'taxIncluded' => true,
-			)
+		$line = array(
+			'id'          => $subscription->id,
+			'quantity'    => 1,
+			'amount'      => $payment_args['amount'],
+			'itemCode'    => $item,
+			'taxIncluded' => true,
 		);
+
+		if ( $tax_code = RCP_Avatax::meta_get( $subscription->id, 'item' ) ) {
+			$line['taxCode'] = $tax_code;
+		}
+
+		$args['lines'] = array( $line );
 
 		// Set the VAT if it exists
 		if ( $vat = Helpers::get_param( $address, 'rcp_vat_id' ) ) {
@@ -153,7 +158,8 @@ class RequestTax extends Request {
 			'customerCode'             => '99999',
 			'discount'                 => null,
 			'addresses'                => array(
-				'ShipTo' => array(),
+				'ShipFrom' => array(),
+				'ShipTo'   => array(),
 			),
 			'lines'                    => array(),
 			'commit'                   => false,
@@ -183,26 +189,28 @@ class RequestTax extends Request {
 			$subscription_id = rcp_get_registration()->get_subscription();
 		}
 
-		if ( ! $item = RCP_Avatax::meta_get( $subscription_id, 'avatax-item' ) ) {
+		if ( ! $item = RCP_Avatax::meta_get( $subscription_id, 'item' ) ) {
 			throw new Exception( 'This subscription level does not have a related AvaTax item.' );
 		}
 
-		$total           = rcp_get_registration_total();
-		$total_recurring = rcp_get_registration_recurring_total();
+		$args = array(
+			'quantity' => 1,
+			'itemCode' => $item,
+		);
+
+		if ( $tax_code = RCP_Avatax::meta_get( $subscription_id, 'item' ) ) {
+			$args['taxCode'] = $tax_code;
+		}
 
 		$lines = array();
 
-		$lines[] = array(
-			'quantity' => 1,
-			'amount'   => $total,
-			'itemCode' => $item,
-		);
+		// total today tax
+		$args['amount'] = rcp_get_registration_total();
+		$lines[]        = $args;
 
-		$lines[] = array(
-			'quantity' => 1,
-			'amount'   => $total_recurring,
-			'itemCode' => $item,
-		);
+		// total recurring tax
+		$args['amount'] = rcp_get_registration_recurring_total();
+		$lines[]        = $args;
 
 		return apply_filters( 'rcp_avatax_prepare_line', $lines, $subscription_id );
 	}

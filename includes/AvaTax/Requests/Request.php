@@ -72,9 +72,30 @@ class Request extends RequestJSON {
 		$this->path = 'utilities/ping';
 	}
 
+	/**
+	 * Get company address
+	 *
+	 * @throws Exception
+	 */
+	protected function get_company_address() {
+		$address = array(
+			'Line1'       => RCP_Avatax::get_settings( 'company_address' ),
+			'Line2'       => RCP_Avatax::get_settings( 'company_address_2' ),
+			'City'        => RCP_Avatax::get_settings( 'company_city' ),
+			'Region'      => RCP_Avatax::get_settings( 'company_state' ),
+			'Country'     => RCP_Avatax::get_settings( 'company_country' ),
+			'PostalCode'  => RCP_Avatax::get_settings( 'company_postal_code' ),
+		);
+
+		if ( empty( $address['Line1'] ) || empty( $address['City'] ) || empty( $address['Region'] ) || empty( $address['Country'] ) ) {
+			throw new Exception( 'Missing required company Address parameters. Please provide Line1, City, Region, and Country' );
+		}
+
+		return $address;
+	}
 
 	/**
-	 * Prepare an address for the AvaTax API.
+ * Prepare an address for the AvaTax API.
 	 *
 	 * Instead of keeping the input array keys 1-to-1 with the AvaTax API param keys, we map them to
 	 * RCP's standard address keys to make things easier on the RCP side and avoid

@@ -96,27 +96,7 @@ class Init {
 		printf( '<div class="error"><p>%s</p></div>', __( 'Restrict Content Pro is required for the Restrict Content Pro - AvaTax add-on to function.', 'rcp-avatax' ) );
 	}
 
-	public function scripts() {
-
-		global $rcp_options;
-
-//		wp_register_script( 'taxamo', 'https://api.taxamo.com/js/v1/taxamo.all.js', array(), '1' );
-//		wp_register_script( 'rcp-avatax', RCPTX_PATH . 'assets/scripts/rcp-taxamo.min.js', array( 'jquery', 'taxamo' ), '1', true );
-//
-//		if ( is_page( $rcp_options['registration_page'] ) && ! empty( $rcp_options['avatax_account_number'] ) ) {
-//			wp_enqueue_script( 'rcp-avatax' );
-//			wp_localize_script( 'rcp-avatax', 'rcp_taxamo_vars', array(
-//					'avatax_account_number' => $rcp_options['avatax_account_number'],
-//					'currency'            => $rcp_options['currency'],
-//					'priceTemplate'       => ! empty( $rcp_options['taxamo_price_template'] ) ? $rcp_options['taxamo_price_template'] : __( '${totalAmount} (${taxRate}% tax)', 'rcp-avatax' ),
-//					'noTaxTitle'          => ! empty( $rcp_options['taxamo_no_tax_title'] ) ? $rcp_options['taxamo_no_tax_title'] : __( 'No tax applied in this location', 'rcp-avatax' ),
-//					'taxTitle'            => ! empty( $rcp_options['taxamo_tax_title'] ) ? $rcp_options['taxamo_tax_title'] : __( 'Original amount: ${amount}, tax rate: ${taxRate}%', 'rcp-avatax' ),
-//					'priceClass'          => ! empty( $rcp_options['taxamo_price_class'] ) ? '.' . $rcp_options['taxamo_price_class'] : '.rcp_price',
-//				)
-//			);
-//		}
-
-	}
+	public function scripts() {}
 
 	/**
 	 * Render the country field for member details.
@@ -223,11 +203,11 @@ class Init {
 	 * @param $values
 	 */
 	public static function meta_save( $subscription_id, $values ) {
-		$meta = get_option( Levels::get_option_key(), array() );
+		global $rcp_levels_db;
 
-		$meta[ $subscription_id ] = apply_filters( 'rcp_avatax_tax_code_save_sanitize', $values );
+		$values = apply_filters( 'rcp_avatax_tax_code_save_sanitize', $values );
 
-		update_option( Levels::get_option_key(), $meta );
+		$rcp_levels_db->update_meta( $subscription_id, 'avatax_meta', $values );
 	}
 
 	/**
@@ -239,9 +219,15 @@ class Init {
 	 * @return mixed
 	 */
 	public static function meta_get( $subscription_id, $key = null ) {
-		$meta = get_option( Levels::get_option_key(), array() );
+		global $rcp_levels_db;
 
-		$meta = Helpers::get_param( $meta, $subscription_id, array() );
+		if ( ! $meta = $rcp_levels_db->get_meta( $subscription_id, 'avatax_meta', true ) ) {
+			$meta = get_option( Levels::get_option_key(), array() );
+			$meta = Helpers::get_param( $meta, $subscription_id, array() );
+			if ( $key ) {
+				$key = 'avatax-' . $key;
+			}
+		}
 
 		if ( $key ) {
 			$meta = Helpers::get_param( $meta, $key );

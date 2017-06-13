@@ -63,7 +63,6 @@ class Settings {
 		wp_enqueue_script( 'bbq',  RCP_PLUGIN_URL . 'includes/js/jquery.ba-bbq.min.js' );
 		wp_enqueue_script( 'rcp-admin-scripts',  RCP_PLUGIN_URL . 'includes/js/admin-scripts.js', array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-tooltip' ), RCP_PLUGIN_VERSION );
 
-		$status   = get_option( 'rcp_avatax_license_status', '' );
 
 		if ( isset( $_REQUEST['updated'] ) && $_REQUEST['updated'] !== false ) : ?>
 			<div class="updated fade"><p><strong><?php _e( 'Options saved', 'rcp-avatax' ); ?></strong></p></div>
@@ -79,9 +78,10 @@ class Settings {
 				<?php settings_fields( 'rcp_avatax_settings_group' ); ?>
 
 				<h2 class="nav-tab-wrapper">
-					<a href="#general" class="nav-tab"><?php _e( 'General', 'rcp-avatax' ); ?></a>
+					<?php foreach( apply_filters( 'rcp_avatax_admin_tabs', array( 'general', 'address' ) ) as $tab ) : ?>
+						<?php printf( '<a href="#%s" class="nav-tab">%s</a>', $tab, __( ucwords( $tab ), 'rcp-avatax' ) ); ?>
+					<?php endforeach; ?>
 					<a href="<?php admin_url(); ?>?page=rcp-avatax-log" class="nav-tab"><?php _e( 'Log', 'rcp-avatax' ); ?></a>
-					<a href="#license" class="nav-tab"><?php _e( 'License', 'rcp-avatax' ); ?></a>
 				</h2>
 
 				<div id="tab_container">
@@ -167,29 +167,74 @@ class Settings {
 							</tr>
 						</table>
 					</div>
-
-					<div class="tab_content" id="license">
+					<div class="tab_content" id="address">
 						<table class="form-table">
-							<tr>
+							<tr valign="top">
+								<th colspan=2><h3><?php _e( 'AvaTax Company Address', 'rcp-avatax' ); ?></h3></th>
+							</tr>
+							<tr valign="top">
 								<th>
-									<label for="rcp_avatax[license_key]"><?php _e( 'RCP - AvaTax License Key', 'rcp-avatax' ); ?></label>
+									<label for="rcp_avatax[company_address]"><?php _e( 'Address Line 1', 'rcp-avatax' ); ?></label>
 								</th>
 								<td>
-									<p>
-										<input class="regular-text" type="text" id="rcp_avatax[license_key]" name="rcp_avatax[license_key]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'license_key' ) ); ?>" />
-										<?php if ( $status == 'valid' ) : ?>
-											<?php wp_nonce_field( 'rcp_avatax_deactivate_license', 'rcp_avatax_deactivate_license' ); ?>
-											<?php submit_button( 'Deactivate License', 'secondary', 'rcp_avatax_license_deactivate', false ); ?>
-											<span style="color:green">&nbsp;&nbsp;<?php _e( 'active', 'rcp-avatax' ); ?></span>
-										<?php else : ?>
-											<?php submit_button( 'Activate License', 'secondary', 'rcp_avatax_license_activate', false ); ?>
-										<?php endif; ?></p>
+									<input type="text" class="regular-text" id="rcp_avatax[company_address]" style="width: 300px;" name="rcp_avatax[company_address]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_address' ) ); ?>" />
 
-									<p class="description"><?php printf( __( 'Enter your Restrict Content Pro - AvaTax license key. This is required for automatic updates and <a href="%s">support</a>.', 'rcp-avatax' ), 'https://skilledcode.com/support' ); ?></p>
+									<p class="description"><?php _e( 'Enter your Avalara Company address.', 'rcp-avatax' ); ?></p>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th>
+									<label for="rcp_avatax[company_address_2]"><?php _e( 'Address Line 2', 'rcp-avatax' ); ?></label>
+								</th>
+								<td>
+									<input type="text" class="regular-text" id="rcp_avatax[company_address_2]" style="width: 300px;" name="rcp_avatax[company_address_2]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_address_2' ) ); ?>" />
+
+									<p class="description"><?php _e( 'Enter your Avalara Company address line 2.', 'rcp-avatax' ); ?></p>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th>
+									<label for="rcp_avatax[company_city]"><?php _e( 'City', 'rcp-avatax' ); ?></label>
+								</th>
+								<td>
+									<input type="text" class="regular-text" id="rcp_avatax[company_city]" style="width: 300px;" name="rcp_avatax[company_city]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_city' ) ); ?>" />
+
+									<p class="description"><?php _e( 'Enter the Avalara Company city.', 'rcp-avatax' ); ?></p>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th>
+									<label for="rcp_avatax[company_postal_code]"><?php _e( 'Postal Code', 'rcp-avatax' ); ?></label>
+								</th>
+								<td>
+									<input type="text" class="regular-text" id="rcp_avatax[company_postal_code]" style="width: 10em;" name="rcp_avatax[company_postal_code]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_postal_code' ) ); ?>" />
+
+									<p class="description"><?php _e( 'Enter the Avalara Company postal code.', 'rcp-avatax' ); ?></p>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th>
+									<label for="rcp_avatax[company_state]"><?php _e( 'Province', 'rcp-avatax' ); ?></label>
+								</th>
+								<td>
+									<input type="text" class="regular-text" id="rcp_avatax[company_state]" maxlength="3" style="width: 4em;" name="rcp_avatax[company_state]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_state' ) ); ?>" />
+
+									<p class="description"><?php _e( 'Enter the Avalara Company state/region/province code.', 'rcp-avatax' ); ?></p>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th>
+									<label for="rcp_avatax[company_country]"><?php _e( 'Country', 'rcp-avatax' ); ?></label>
+								</th>
+								<td>
+									<input type="text" class="regular-text" id="rcp_avatax[company_country]" maxlength="3" style="width: 4em;" name="rcp_avatax[company_country]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_country' ) ); ?>" />
+
+									<p class="description"><?php _e( 'Enter the Avalara Company country code. <a href="https://www.iso.org/obp/ui/#search">Uses ISO country code.</a>', 'rcp-avatax' ); ?></p>
 								</td>
 							</tr>
 						</table>
 					</div>
+					<?php do_action( 'rcp_avatax_admin_tabs_container_after' ); ?>
 				</div>
 
 				<?php settings_fields( 'rcp_avatax_settings_group' ); ?>
@@ -215,9 +260,10 @@ class Settings {
 				<input type="hidden" name="page" value="rcp-avatax-log" />
 
 				<h2 class="nav-tab-wrapper">
-					<a href="<?php admin_url(); ?>?page=rcp-avatax-settings#general" class="nav-tab"><?php _e( 'General', 'rcp-avatax' ); ?></a>
+					<?php foreach( apply_filters( 'rcp_avatax_admin_tabs', array( 'general', 'address' ) ) as $tab ) : ?>
+						<?php printf( '<a href="%sadmin.php?page=rcp-avatax-settings#%s" class="nav-tab">%s</a>', get_admin_url(), $tab, __( ucwords( $tab ), 'rcp-avatax' ) ); ?>
+					<?php endforeach; ?>
 					<a href="#" class="nav-tab nav-tab-active"><?php _e( 'Log', 'rcp-avatax' ); ?></a>
-					<a href="<?php admin_url(); ?>?page=rcp-avatax-settings#license" class="nav-tab"><?php _e( 'License', 'rcp-avatax' ); ?></a>
 				</h2>
 
 				<div id="tab_container">
@@ -293,7 +339,7 @@ class Settings {
 			}
 		}
 
-		return array_map( 'sanitize_text_field', $new );
+		return apply_filters( 'rcp_avatax_sanitize_settings', array_map( 'sanitize_text_field', $new ), $new );
 	}
 
 }
