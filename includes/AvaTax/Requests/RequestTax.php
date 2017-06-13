@@ -114,7 +114,7 @@ class RequestTax extends Request {
 			'taxIncluded' => true,
 		);
 
-		if ( $tax_code = RCP_Avatax::meta_get( $subscription->id, 'item' ) ) {
+		if ( $tax_code = RCP_Avatax::meta_get( $subscription->id, 'taxcode' ) ) {
 			$line['taxCode'] = $tax_code;
 		}
 

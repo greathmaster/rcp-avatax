@@ -3,7 +3,7 @@
  * Plugin Name: Restrict Content Pro - AvaTax
  * Plugin URL: https://skilledcode.com/plugins/rcp-avatax
  * Description: Avatax add-on for Restrict Content Pro
- * Version: 0.0.1
+ * Version: 1.0.0
  * Author: Tanner Moushey
  * Author URI: https://skilledcode.com
  * Text Domain: rcp-avatax
@@ -20,7 +20,7 @@ if ( !defined( 'RCP_AVATAX_PLUGIN_FILE' ) ) {
 	define( 'RCP_AVATAX_PLUGIN_FILE', __FILE__ );
 }
 if ( !defined( 'RCP_AVATAX_PLUGIN_VERSION' ) ) {
-	define( 'RCP_AVATAX_PLUGIN_VERSION', '0.0.1' );
+	define( 'RCP_AVATAX_PLUGIN_VERSION', '1.0.0' );
 }
 if ( ! defined( 'CAL_GREGORIAN' ) ) {
 	define( 'CAL_GREGORIAN', 1 );

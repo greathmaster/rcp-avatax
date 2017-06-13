@@ -227,7 +227,7 @@ class Settings {
 									<label for="rcp_avatax[company_country]"><?php _e( 'Country', 'rcp-avatax' ); ?></label>
 								</th>
 								<td>
-									<input type="text" class="regular-text" id="rcp_avatax[company_country]" maxlength="3" style="width: 4em;" name="rcp_avatax[company_country]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_country' ) ); ?>" />
+									<input type="text" class="regular-text" id="rcp_avatax[company_country]" maxlength="2" style="width: 4em;" name="rcp_avatax[company_country]" value="<?php echo esc_attr( RCP_Avatax::get_settings( 'company_country' ) ); ?>" />
 
 									<p class="description"><?php _e( 'Enter the Avalara Company country code. <a href="https://www.iso.org/obp/ui/#search">Uses ISO country code.</a>', 'rcp-avatax' ); ?></p>
 								</td>
