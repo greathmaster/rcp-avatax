@@ -126,7 +126,7 @@ class Init {
 	 * @return string
 	 */
 	public static function get_settings( $key = false, $default = '' ) {
-		$settings = get_option( 'rcp_avatax', '' );
+		$settings = get_option( 'rcp_avatax', array() );
 
 		if ( ! $key ) {
 			return $settings;
