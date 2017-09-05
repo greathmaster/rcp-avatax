@@ -282,11 +282,11 @@ class Settings {
 
 								printf( '<h3>%s</h3>', __( 'Request Data', 'rcp-avatax' ) );
 								$request = maybe_unserialize( get_post_meta( $item->ID, '_log_request_data', true ) );
-								var_dump( $request );
+								?><pre><?php var_dump( $request ); ?></pre><?php
 
 								printf( '<h3>%s</h3>', __( 'Response Data', 'rcp-avatax' ) );
 								$response = unserialize( trim( get_post_meta( $item->ID, '_log_response_data', true ) ) );
-								var_dump( $response );
+								?><pre><?php var_dump( $response ); ?></pre><?php
 							}
 							?>
 						<?php else : ?>
