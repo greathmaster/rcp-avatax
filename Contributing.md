@@ -6,7 +6,7 @@ notes for you to make the experience smoother.
 ### Issues
 **Proposed changes of any kind must have an associated issue.**
 Pull requests without a linked issue may be missed or ignored.
-Before opening a pull request, please [open an issue](https://github.com/restrictcontentpro/restrict-content-pro/issues/new).
+Before opening a pull request, please [open an issue](https://github.com/skillfulplugins/rcp-avatax/issues/new).
 Describe the issue in detail. Note the issue number, you will need it for your pull request.
 
 ### Commit Messages
@@ -35,4 +35,4 @@ Issues milestoned for a point release are also developed in issue branches, but 
 merged into `master` after review and testing.
 
 ## Questions?
-Shoot us an [email](https://restrictcontentpro.com/support/) or ask on the issue you created.
+Shoot us an [email](https://skillfulplugins.com/contact/) or ask on the issue you created.
