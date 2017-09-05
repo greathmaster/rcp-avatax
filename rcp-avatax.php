@@ -4,7 +4,7 @@
  * Plugin URL: https://skillfulplugins.com/plugins/rcp-avatax
  * Description: Avatax add-on for Restrict Content Pro
  * Version: 1.0.0
- * Author: Tanner Moushey
+ * Author: Skillful Plugins
  * Author URI: https://skillfulplugins.com
  * Text Domain: rcp-avatax
  * Domain Path: languages
