@@ -8,12 +8,12 @@
     "tanner",
     "avatax"
   ],
-  "homepage": "https://skilledcode.com/plugins/rcp-avatax",
+  "homepage": "https://skillfulplugins.com/plugins/rcp-avatax",
   "authors": [
     {
       "name": "Tanner Moushey",
       "email": "tanner@iwitnessdesign.com",
-      "homepage": "https://skilledcode.com"
+      "homepage": "https://skillfulplugins.com"
     }
   ],
   "repositories": [
@@ -23,7 +23,6 @@
     }
   ],
   "require": {
-    "avalara/avatax-rest-api": "*",
     "composer/installers": "~1.0.6",
     "julien-c/iso3166": "^2.0"
   },
