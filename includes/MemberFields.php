@@ -163,6 +163,16 @@ class MemberFields {
 			</style>
 		<?php endif; ?>
 
+		<?php if ( apply_filters( 'rcp_avatax_form_script_show', true ) ) : ?>
+			<script>
+				jQuery(document).ready(function($){
+				  $('.rcp_avatax_fieldset input, .rcp_avatax_fieldset select').on('change', function() {
+				    $('body').trigger( 'rcp_gateway_change' );
+				  })
+				});
+			</script>
+		<?php endif; ?>
+
 		<fieldset class="rcp_avatax_fieldset">
 
 			<legend><?php echo apply_filters( 'rcp_avatax_address_title', __( 'Billing Address', 'rcp-avatax' ) ); ?></legend>

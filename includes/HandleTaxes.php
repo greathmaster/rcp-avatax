@@ -49,7 +49,7 @@ class HandleTaxes {
 	public $recurring_tax_id = '';
 
 	/**
-	 * @var bool | whether or not this is an actual registration process
+	 * @var bool whether or not this is an actual registration process
 	 */
 	public $registering = false;
 
@@ -217,6 +217,11 @@ class HandleTaxes {
 	 */
 	public function add_subscription_tax( $subscription_data ) {
 
+		/**
+		 * @var \RCP_Payments $rcp_payments_db
+		 */
+		global $rcp_payments_db;
+
 		// make sure the taxes have been calculated
 		if ( null === $this->rate ) {
 			$this->registering = true;
@@ -229,6 +234,13 @@ class HandleTaxes {
 
 		if ( apply_filters( 'rcp_avatax_subscription_data_add_price_tax', true, $subscription_data, $this ) ) {
 			$subscription_data['price'] = $this->add_tax( $subscription_data['price'], $subscription_data['fee'] );
+
+			// the payment data has already been stored. We need to update it with the new info
+			if ( isset( $subscription_data['payment_id'] ) ) {
+				$rcp_payments_db->update( $subscription_data['payment_id'], array(
+					'amount' => $this->add_tax( rcp_get_registration()->get_total() ),
+				) );
+			}
 		}
 
 		if ( apply_filters( 'rcp_avatax_subscription_data_add_recurring_price_tax', true, $subscription_data, $this ) ) {

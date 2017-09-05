@@ -29,6 +29,11 @@ class Init {
 	public $logging;
 
 	/**
+	 * @var Payments
+	 */
+	public $payments;
+
+	/**
 	 * Only make one instance of \RCP_Avatax\Init
 	 *
 	 * @return Init
@@ -66,6 +71,7 @@ class Init {
 		$this->handle_taxes  = HandleTaxes::get_instance();
 		$this->member_fields = MemberFields::get_instance();
 		$this->logging       = Logging::get_instance();
+		$this->payments      = Payments::get_instance();
 
 		Gateways\Stripe::get_instance();
 	}
