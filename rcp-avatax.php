@@ -27,7 +27,7 @@ if ( ! defined( 'CAL_GREGORIAN' ) ) {
 }
 
 // EDD Licensing constants
-define( 'RCP_AVATAX_STORE_URL', 'https://skilledcode.com' );
+define( 'RCP_AVATAX_STORE_URL', 'https://skillfulplugins.com' );
 define( 'RCP_AVATAX_ITEM_NAME', 'Restrict Content Pro - AvaTax' );
 
 require_once( RCP_AVATAX_PLUGIN_DIR . 'vendor/autoload.php' );
